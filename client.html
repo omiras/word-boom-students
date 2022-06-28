@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word-O-Bomb</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <style>
+        .inactive {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Word-O-Bomb</h2>
+    <hr>
+    <div class="waiting">
+        <p>Waiting more players...</p>
+        <button id="start" disabled>Start Game</button>
+    </div>
+    <div class="playing inactive">
+        <h4 id="guess">Word to write: <span style="color:teal"></span></h4>
+        <form id="form" action="">
+            <label for="input">Escribir la palabra correctamente: </label>
+            <input id="input" autocomplete="off" /><button>Enviar</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+
+        </table>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        var username = prompt("Escribe tu nickname:");
+        socket.emit('change nickname', username)
+
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (input.value) {
+                conole.log("Palabra escrita: ", input.value);
+                // Iteración 5-6: Comprobar si la palabra introducida es correcta y emitir el evento adecuado. Hay que definir un nuevo tipo de evento...
+            }
+        });
+
+        socket.on('game canstart', () => {
+            /** Iteración 1: Habilita el botón para poder empezar el juego (dos líneas de código) */
+            console.log("Evento recibido: el juego puede empezar.");
+
+            /** Iteración 2. Dos líneas de código */
+
+        });
+
+        // Iteración 4: Esta función debe ejecutarse CADA VEZ que se recibe el evento 'game nextword'. Va a hacer que se muestra en el contenedor adecuado la palabra a adivinar
+
+        function setNextWord(nextWord) {
+            document.querySelector('.waiting').classList.add('inactive');
+            document.querySelector('.playing').classList.remove('inactive');
+
+            document.querySelector('#guess span').textContent = nextWord;
+        }
+
+        /** Este evento se va a encargar de actualizar la tabla de puntuaciones. Recibe un array de usuarios*/
+        socket.on('game updatescore', (usernames) => {
+            console.log("Nueva puntuación recibida: ", usernames);
+            let table = document.querySelector('tbody');
+            table.innerHTML = '';
+
+            usernames.forEach(u => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td>${u.username}</td>
+                                 <td>${u.score}</td>`;
+                table.appendChild(tr);
+            })
+        })
+    </script>
+</body>
+
+</html>
