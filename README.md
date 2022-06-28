@@ -11,7 +11,7 @@ En la parte cliente, modifica el código que recibe un evento de tipo 'game cans
 
 ## Iteración 2
 
-Al hacer clic en el botón de empezar, se debe enviar un evento, de nombre 'game start' al servidor. Añade un listener al botón que emita el evento 'game start' cuando se pulse
+Al hacer clic en el botón de empezar, se debe enviar un evento, de nombre 'game start' al servidor. Añade un listener, que debe caputrar el evento 'click'. Entonces el se debe emitir el evento 'game start'.
 
 ## Iteración 3
 

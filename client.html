@@ -52,20 +52,68 @@
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             if (input.value) {
-                conole.log("Palabra escrita: ", input.value);
+                console.log("Palabra escrita: ", input.value);
                 // Iteración 5-6: Comprobar si la palabra introducida es correcta y emitir el evento adecuado. Hay que definir un nuevo tipo de evento...
+
+                let wordToGuess = document.querySelector("#guess span").textContent;
+                let inputUser = input.value.toLowerCase();
+
+                if (wordToGuess != inputUser) {
+                    alert(`La palabra ${inputUser} es incorrecta`);
+                }
+
+                else {
+                    // 1. Informamos de la palabra al servidor que hemos escrito
+                    // 2. Es el servidor el responsable final de comprobar la palabra del usuario y actualizar las puntuaciones y enviar de vuelta las puntuaciones actualizadas. Además tendrá que enviar una nueva palabra
+                    socket.emit('game inputword', inputUser);
+                }
+
+                input.value = '';
+
+
+                // Alternativa 1: cliente informa al servidor que su palabra es correcta
+
+                // decidimos aquí si la palabra está bien o no
+                // socket.emit('game wordcorrect', socket.id)
+
+                // Alternativa 2: Yo envio la palabra que he escrito al servidor y él decide si es correcto o no, y me informa
+                // socket.emit('game checkword', input.value)
             }
         });
 
         socket.on('game canstart', () => {
             /** Iteración 1: Habilita el botón para poder empezar el juego (dos líneas de código) */
             console.log("Evento recibido: el juego puede empezar.");
+            // Quitar el atributo disabled del botón 
+            let btnStart = document.querySelector("#start");
+            btnStart.removeAttribute("disabled");
 
             /** Iteración 2. Dos líneas de código */
+            btnStart.addEventListener("click", () => {
+                socket.emit("game start");
+            });
+
 
         });
 
+        socket.on("game muststop", () => {
+            console.log("El juego debe pararse porque queda menos de un jugador");
+            // 1. Mostrar de nuevo la sección de Wating players
+            document.querySelector('.playing').classList.add('inactive');
+            document.querySelector('.waiting').classList.remove('inactive');
+            // 2. Deshabilitar el botón de empezar
+            let btnStart = document.querySelector("#start");
+            btnStart.setAttribute("disabled", '');
+
+            // 3. Resetear la tabla de puntos
+            document.querySelector("tbody").innerHTML = "";
+        });
+
         // Iteración 4: Esta función debe ejecutarse CADA VEZ que se recibe el evento 'game nextword'. Va a hacer que se muestra en el contenedor adecuado la palabra a adivinar
+
+        socket.on("game nextword", (nextWord) => {
+            setNextWord(nextWord);
+        });
 
         function setNextWord(nextWord) {
             document.querySelector('.waiting').classList.add('inactive');
